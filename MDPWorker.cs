@@ -107,7 +107,7 @@ namespace Majordomo
         ///     send READY and subsequently wait for a request.
         ///     reply == <c>null</c> will bypass the sending of a message!
         /// </remarks>
-        public NetMQMessage Receive(NetMQMessage reply)
+        public async Task<NetMQMessage> TryReceive(NetMQMessage reply ,CancellationToken stoppingToken)
         {
             // set the number of left retries to connect
             m_retriesLeft = m_connectionRetries;
@@ -131,7 +131,7 @@ namespace Majordomo
 
             m_expectReply = 1;
             // now wait for the next request
-            while (!m_exit)
+            while (!stoppingToken.IsCancellationRequested)
             {
                 // see ReceiveReady event handler -> ProcessReceiveReady
                 if (m_worker.Poll(HeartbeatDelay))
@@ -289,7 +289,7 @@ namespace Majordomo
             // if the socket exists dispose it and re-create one
             if (m_worker is not null)
             {
-                m_worker.Unbind(m_brokerAddress);
+                m_worker.Disconnect(m_brokerAddress);
                 m_worker.Dispose();
             }
 
@@ -302,7 +302,7 @@ namespace Majordomo
             m_worker.ReceiveReady += ProcessReceiveReady;
 
             m_worker.Connect(m_brokerAddress);
-
+           
             Log($"[WORKER] connected to broker at {m_brokerAddress}");
 
             // signal that worker is connected
@@ -385,6 +385,11 @@ namespace Majordomo
                 OnLogInfoReady(new MDPLogEventArgs { Info = info });
         }
 
+        public void Stop()
+        {
+            m_exit = true;
+            Dispose();
+        }
         public void Dispose()
         {
             Dispose(true);

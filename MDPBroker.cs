@@ -231,7 +231,6 @@ namespace Majordomo
                 // unregister event handler
                 Socket.ReceiveReady -= ProcessReceivedMessage;
             }
-
             _isRunning = false;
         }
 
@@ -291,7 +290,15 @@ namespace Majordomo
 
             DebugLog("Sent HEARTBEAT to all worker!");
         }
+        public void SendKill()
+        {
+            Purge();
 
+            foreach (var worker in _knownWorkers)
+                WorkerSend(worker, MDPCommand.Kill, null);
+
+            DebugLog("Sent KILL to all worker!");
+        }
         /// <summary>
         ///     expect from
         ///     CLIENT  ->  [sender adr][e][protocol header][service name][request]

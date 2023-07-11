@@ -34,6 +34,6 @@ namespace Majordomo.Common
         ///      pass a <c>null</c> reply in order to initiate the REQ-REP
         ///      ping-pong
         /// </remarks>
-        NetMQMessage Receive(NetMQMessage reply);
+        Task <NetMQMessage> TryReceive(NetMQMessage reply,CancellationToken stoppingToken);
     }
 }
