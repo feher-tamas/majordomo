@@ -1,2 +1,2 @@
 # MAJORDOMO
-Implemeted majordomo protocol V.1 
+majordomo protocol V.1 
